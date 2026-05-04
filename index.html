@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>WasteWorth AI</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#008000">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
+<style>
+body { font-family: Arial; margin:0; background:white; }
+header { background:green; color:white; padding:15px; text-align:center; }
+nav { display:flex; background:#e6ffe6; }
+nav button { flex:1; padding:10px; border:none; background:#ccffcc; cursor:pointer; }
+section { display:none; padding:20px; }
+.active { display:block; }
+.card { border:1px solid #ccc; padding:10px; margin:10px 0; border-radius:10px; }
+input, select { width:100%; padding:10px; margin:5px 0; }
+footer { text-align:center; padding:10px; background:#e6ffe6; }
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>WasteWorth AI ♻️</h1>
+</header>
+
+<nav>
+<button onclick="showTab('home')">Home</button>
+<button onclick="showTab('upload')">Upload</button>
+<button onclick="showTab('categories')">Categories</button>
+<button onclick="showTab('settings')">Settings</button>
+</nav>
+
+<!-- HOME -->
+<section id="home" class="active">
+<h2>Welcome</h2>
+<p>AI-powered waste reuse suggestions.</p>
+</section>
+
+<!-- UPLOAD -->
+<section id="upload">
+<h2>Upload Waste</h2>
+
+<input type="file" accept="image/*" capture="environment" id="imageInput">
+
+<select id="aiMode">
+  <option value="basic">Basic Suggestions</option>
+  <option value="ai">AI Suggestions</option>
+</select>
+
+<button onclick="analyzeWaste()">Analyze</button>
+
+<div id="results"></div>
+</section>
+
+<!-- CATEGORIES -->
+<section id="categories">
+<h2>Categories</h2>
+<div id="categoryList"></div>
+</section>
+
+<!-- SETTINGS -->
+<section id="settings">
+<h2>Settings</h2>
+
+<label>Anthropic API Key</label>
+<input id="anthropicKey" placeholder="Enter key">
+
+<label>Gemini API Key</label>
+<input id="geminiKey" placeholder="Enter key">
+
+<button onclick="saveKeys()">Save</button>
+</section>
+
+<footer>
+<p>WasteWorth AI © 2026 | Save Earth 🌍</p>
+</footer>
+
+<script>
+const categories = [
+"Plastic Bottles","Glass","Paper","Cardboard","Metal","E-Waste","Clothes",
+"Shoes","Wood","Food Waste","Garden Waste","Rubber","Batteries","Paint",
+"Oil","Electronics","Toys","Furniture","Books","Cans","Packaging","Textiles"
+];
+
+function showTab(tab){
+document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+document.getElementById(tab).classList.add('active');
+}
+
+function loadCategories(){
+const container = document.getElementById('categoryList');
+categories.forEach(cat=>{
+let div = document.createElement('div');
+div.className='card';
+div.innerHTML = `
+<h3>${cat}</h3>
+<ul>
+<li>Reuse idea 1</li>
+<li>Reuse idea 2</li>
+<li>Reuse idea 3</li>
+</ul>
+<button onclick="aiSuggest('${cat}')">AI Suggestions</button>
+<div id="ai-${cat}"></div>
+`;
+container.appendChild(div);
+});
+}
+
+function analyzeWaste(){
+const mode = document.getElementById("aiMode").value;
+const result = document.getElementById('results');
+
+if(mode === "basic"){
+result.innerHTML = `
+<div class="card">
+<h3>Detected: Plastic Bottle</h3>
+<ul>
+<li>Plant pot 🌱</li>
+<li>Water storage 💧</li>
+<li>DIY lamp 💡</li>
+</ul>
+</div>`;
+} else {
+result.innerHTML = `<div class="card">Fetching AI suggestions...</div>`;
+}
+}
+
+function aiSuggest(category){
+const key = localStorage.getItem('gemini');
+let container = document.getElementById('ai-'+category);
+
+if(!key){
+container.innerHTML = 'Add API key in settings';
+return;
+}
+
+container.innerHTML = 'Fetching AI suggestions...';
+
+// Dummy AI (replace with real API later)
+setTimeout(()=>{
+container.innerHTML = `
+<ul>
+<li>Creative reuse idea 1</li>
+<li>Creative reuse idea 2</li>
+<li>Creative reuse idea 3</li>
+</ul>`;
+},1000);
+}
+
+function saveKeys(){
+localStorage.setItem('anthropic', document.getElementById('anthropicKey').value);
+localStorage.setItem('gemini', document.getElementById('geminiKey').value);
+alert('API Keys Saved');
+}
+
+// Service Worker
+if ("serviceWorker" in navigator) {
+navigator.serviceWorker.register("service-worker.js")
+.then(() => console.log("Service Worker Registered"))
+.catch(err => console.log(err));
+}
+
+// Offline alert
+window.addEventListener("offline", () => {
+alert("You are offline. Some features may not work.");
+});
+
+loadCategories();
+</script>
+
+</body>
+</html>
